@@ -16,13 +16,66 @@ Resources:
         Value: CF-VPC
 
   InternetGateway:
-    Description: Create InternetGateway for CF-VPC
+    Description: Create InternetGateway for VPC
     Type: AWS::EC2::InternetGateway
     DependsOn: VPC
     
   AttachGateway:
-    Description: Attach InternetGateway with CF-VPC
+    Description: Attach InternetGateway with VPC
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
+      
+  SubnetA:
+    Type: AWS::EC2::Subnet
+    Description: Create  SUBNET-A for VPC
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: us-east-1a
+      Tags:
+      - Key: Name
+        Value: CF-VPC-SUB-A
+        
+  SubnetB:
+    Type: AWS::EC2::Subnet
+    Description: Create  SUBNET-B for VPC
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: us-east-1b
+      Tags:
+      - Key: Name
+        Value: CF-VPC-SUB-B
+   
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Description: Create Route Table for Subnets 
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: CF-VPC-RT
+  Route:   
+    Type: AWS::EC2::Route
+    Description: Define route for subnets 
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway  
+      
+  SubnetARouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Description: Associate route table with subnet A
+    Properties:
+      SubnetId: !Ref SubnetA
+      RouteTableId: !Ref RouteTable
+      
+  SubnetBRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Description: Associate route table with subnet B
+    Properties:
+      SubnetId: !Ref SubnetB
+      RouteTableId: !Ref RouteTable
