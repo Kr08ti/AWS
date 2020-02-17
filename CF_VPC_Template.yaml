@@ -1,0 +1,28 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Simple Cloudformation template to create a VPC
+
+Resources:
+  VPC:
+    Description: Creation of VPC with 10.0.0.0/16 CIDR
+    Type: AWS::EC2::VPC 
+    Properties:  
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: false
+      EnableDnsHostnames: false
+      InstanceTenancy: default
+      Tags:
+      - Key: Name
+        Value: CF-VPC
+
+  InternetGateway:
+    Description: Create InternetGateway for CF-VPC
+    Type: AWS::EC2::InternetGateway
+    DependsOn: VPC
+    
+  AttachGateway:
+    Description: Attach InternetGateway with CF-VPC
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
