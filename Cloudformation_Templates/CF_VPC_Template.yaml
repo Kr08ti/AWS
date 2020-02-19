@@ -1,0 +1,101 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Simple Cloudformation template to create a VPC
+
+Parameters: 
+    Ec2sshkey: 
+      Description: Shh key for ec2 instance
+      Type: AWS::EC2::KeyPair::KeyName
+      Default: Lab-1-Key
+
+Resources:
+  VPC:
+    Description: Creation of VPC with 10.0.0.0/16 CIDR
+    Type: AWS::EC2::VPC 
+    Properties:  
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: false
+      EnableDnsHostnames: false
+      InstanceTenancy: default
+      Tags:
+      - Key: Name
+        Value: CF-VPC
+
+  InternetGateway:
+    Description: Create InternetGateway for VPC
+    Type: AWS::EC2::InternetGateway
+    DependsOn: VPC
+    
+  AttachGateway:
+    Description: Attach InternetGateway with VPC
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+      
+  SubnetA:
+    Type: AWS::EC2::Subnet
+    Description: Create  SUBNET-A for VPC
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: us-east-1a
+      Tags:
+      - Key: Name
+        Value: CF-VPC-SUB-A
+        
+  SubnetB:
+    Type: AWS::EC2::Subnet
+    Description: Create  SUBNET-B for VPC
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: us-east-1b
+      Tags:
+      - Key: Name
+        Value: CF-VPC-SUB-B
+   
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Description: Create Route Table for Subnets 
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: CF-VPC-RT
+  Route:   
+    Type: AWS::EC2::Route
+    Description: Define route for subnets 
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway  
+      
+  SubnetARouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Description: Associate route table with subnet A
+    Properties:
+      SubnetId: !Ref SubnetA
+      RouteTableId: !Ref RouteTable
+      
+  SubnetBRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Description: Associate route table with subnet B
+    Properties:
+      SubnetId: !Ref SubnetB
+      RouteTableId: !Ref RouteTable
+ 
+  EC2Instance: 
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: us-east-1a
+      ImageId: ami-0a887e401f7654935
+      InstanceType: t2.micro
+      KeyName: !Ref Ec2sshkey
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        SubnetId: !Ref SubnetA 
+        
+      
