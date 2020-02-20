@@ -1,0 +1,28 @@
+{
+  "DryRun": true,
+  "ImageId": "ami-0a887e401f7654935",
+  "InstanceType": "t2.micro",
+  "KeyName": "Lab-1-Key",
+  "MaxCount": 1,
+  "MinCount": 1,
+  "Monitoring": {
+    "Enabled": true
+  },
+  "Placement": {
+    "AvailabilityZone": "us-east-1a"
+  },
+  "SecurityGroupIds": [
+    "sg-07a312b9dee1c6f34"
+  ],
+  "DisableApiTermination": true,
+  "EbsOptimized": false,
+  "InstanceInitiatedShutdownBehavior": "stop",
+  "NetworkInterfaces": [
+    {
+      "AssociatePublicIpAddress": true,
+      "DeleteOnTermination": true,
+      "DeviceIndex": 0,
+      "SubnetId": "subnet-0f2151c7d44bc2892"
+    }
+  ]
+}
