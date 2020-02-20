@@ -1,0 +1,29 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Simple Cloudformation template to create EC2",
+
+  "Parameters" : {
+    "EC2sshkey" : {
+      "Description" : "Key for ssh authentication for EC2 instance",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+	  "Default": "Lab-1-Key"
+	}
+  },
+  "Resources" : {
+    "EC2instance" : {
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "InstanceType" : "t2.micro",
+        "KeyName" : { "Ref" : "EC2sshkey" },
+        "ImageId" : "ami-0a887e401f7654935"
+      }
+    }
+  },
+  "Outputs" : {
+    "InstanceId" : {
+      "Description" : "InstanceId of the newly created EC2 instance",
+      "Value" : { "Ref" : "EC2instance" }
+    }
+  }
+}
