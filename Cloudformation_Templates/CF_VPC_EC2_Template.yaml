@@ -24,8 +24,7 @@ Resources:
   InternetGateway:
     Description: Create InternetGateway for VPC
     Type: AWS::EC2::InternetGateway
-    DependsOn: VPC
-    
+    DependsOn: VPC   
   AttachGateway:
     Description: Attach InternetGateway with VPC
     Type: AWS::EC2::VPCGatewayAttachment
@@ -43,18 +42,7 @@ Resources:
       Tags:
       - Key: Name
         Value: CF-VPC-SUB-A
-        
-  SubnetB:
-    Type: AWS::EC2::Subnet
-    Description: Create  SUBNET-B for VPC
-    Properties:
-      VpcId: !Ref VPC
-      CidrBlock: 10.0.2.0/24
-      AvailabilityZone: us-east-1b
-      Tags:
-      - Key: Name
-        Value: CF-VPC-SUB-B
-   
+ 
   RouteTable:
     Type: AWS::EC2::RouteTable
     Description: Create Route Table for Subnets 
@@ -62,9 +50,8 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: CF-VPC-RT
-        
-  InternetRoute:
+        Value: CF-VPC-RT       
+  Route:
     Type: AWS::EC2::Route
     DependsOn: AttachGateway
     Properties:
@@ -79,13 +66,6 @@ Resources:
       SubnetId: !Ref SubnetA
       RouteTableId: !Ref RouteTable
       
-  SubnetBRouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Description: Associate route table with subnet B
-    Properties:
-      SubnetId: !Ref SubnetB
-      RouteTableId: !Ref RouteTable
-  
   InstanceSecurityGroup:
    Type: AWS::EC2::SecurityGroup
    Properties:
@@ -97,12 +77,28 @@ Resources:
          FromPort: '22'
          ToPort: '22'
          CidrIp: 0.0.0.0/0
+       - IpProtocol: tcp
+         FromPort: '0'
+         ToPort: '65535'
+         CidrIp: 0.0.0.0/0
      SecurityGroupEgress:
        - IpProtocol: -1
          CidrIp: 0.0.0.0/0
   
-
-
-
+  EC2Instance: 
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: us-east-1a
+      ImageId: ami-0a887e401f7654935
+      InstanceType: t2.micro
+      KeyName: 
+        Ref: Ec2sshkey
+      NetworkInterfaces: 
+        - AssociatePublicIpAddress: True
+          DeviceIndex: '0'
+          SubnetId: !Ref SubnetA
+         
+        
+        
   
     
